@@ -176,6 +176,7 @@ int ogs_gtp_xact_update_tx(ogs_gtp_xact_t *xact,
     char buf[OGS_ADDRSTRLEN];
     ogs_gtp_xact_stage_t stage;
     ogs_gtp_header_t *h = NULL;
+    int gtp_hlen = 0;
     
     ogs_assert(xact);
     ogs_assert(xact->gnode);
@@ -244,26 +245,28 @@ int ogs_gtp_xact_update_tx(ogs_gtp_xact_t *xact,
         return OGS_ERROR;
     }
 
-    if (hdesc->teid_presence) {
-        ogs_pkbuf_push(pkbuf, OGS_GTPV2C_HEADER_LEN);
-        memset(pkbuf->data, 0, OGS_GTPV2C_HEADER_LEN);
+    if (hdesc->type > OGS_GTP_VERSION_NOT_SUPPORTED_INDICATION_TYPE) {
+        gtp_hlen = OGS_GTPV2C_HEADER_LEN;
     } else {
-        ogs_pkbuf_push(pkbuf, OGS_GTPV2C_HEADER_LEN - OGS_GTP_TEID_LEN);
-        memset(pkbuf->data, 0, OGS_GTPV2C_HEADER_LEN - OGS_GTP_TEID_LEN);
+        gtp_hlen = OGS_GTPV2C_HEADER_LEN - OGS_GTP_TEID_LEN;
     }
+
+    ogs_pkbuf_push(pkbuf, gtp_hlen);
     h = (ogs_gtp_header_t *)pkbuf->data;
-    ogs_assert(h);
+    memset(h, 0, gtp_hlen);
 
     h->version = 2;
-    h->teid_presence = hdesc->teid_presence;
     h->type = hdesc->type;
-    h->length = htons(pkbuf->len - 4);
-    if (hdesc->teid_presence) {
-        h->teid = htonl(hdesc->teid);
+
+    if (hdesc->type > OGS_GTP_VERSION_NOT_SUPPORTED_INDICATION_TYPE) {
+        h->teid_presence = 1;
+        h->teid = htobe32(hdesc->teid);
         h->sqn = OGS_GTP_XID_TO_SQN(xact->xid);
     } else {
-        h->sqn_only = hdesc->sqn_only;
+        h->teid_presence = 0;
+        h->sqn_only = OGS_GTP_XID_TO_SQN(xact->xid);
     }
+    h->length = htobe16(pkbuf->len - 4);
 
     /* Save Message type and packet of this step */
     xact->seq[xact->step].type = h->type;

@@ -93,6 +93,9 @@ void sgw_state_operational(ogs_fsm_t *s, sgw_event_t *e)
         }
 
         switch(message.h.type) {
+        case OGS_GTP_ECHO_REQUEST_TYPE:
+            sgw_s11_handle_echo_request(xact, &message.echo_request);
+            break;
         case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
             if (message.h.teid == 0) {
                 ogs_assert(!sgw_ue);
@@ -143,9 +146,6 @@ void sgw_state_operational(ogs_fsm_t *s, sgw_event_t *e)
         case OGS_GTP_BEARER_RESOURCE_COMMAND_TYPE:
             sgw_s11_handle_bearer_resource_command(xact, sgw_ue, &message);
             break;
-        case OGS_GTP_ECHO_REQUEST_TYPE:
-            sgw_s11_handle_echo_request(xact, &message);
-            break;        
         default:
             ogs_warn("Not implemented(type:%d)", message.h.type);
             break;
