@@ -39,18 +39,6 @@ static void timeout(ogs_gtp_xact_t *xact, void *data)
             sgw_ue->imsi_bcd, type);
 }
 
-void sgw_s11_handle_echo_request(
-        ogs_gtp_xact_t *s11_xact, ogs_gtp_echo_request_t *req)
-{
-    ogs_assert(s11_xact);
-    ogs_assert(req);
-
-    ogs_debug("[SGW] Echo Request");
-    /* FIXME : Before implementing recovery counter correctly,
-     *         I'll re-use the recovery value in request message */
-    ogs_gtp_send_echo_response(s11_xact, req->recovery.u8, 0);
-}
-
 void sgw_s11_handle_create_session_request(ogs_gtp_xact_t *s11_xact,
         sgw_ue_t *sgw_ue, ogs_gtp_message_t *message)
 {

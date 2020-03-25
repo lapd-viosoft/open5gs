@@ -648,13 +648,17 @@ int ogs_gtp_xact_receive(
     char buf[OGS_ADDRSTRLEN];
     int rv;
     ogs_gtp_xact_t *new = NULL;
+    uint32_t sqn;
 
     ogs_assert(gnode);
     ogs_assert(h);
 
-    new = ogs_gtp_xact_find_by_xid(gnode, h->type, OGS_GTP_SQN_TO_XID(h->sqn));
+    if (h->teid_presence) sqn = h->sqn;
+    else sqn = h->sqn_only;
+
+    new = ogs_gtp_xact_find_by_xid(gnode, h->type, OGS_GTP_SQN_TO_XID(sqn));
     if (!new)
-        new = ogs_gtp_xact_remote_create(gnode, h->sqn);
+        new = ogs_gtp_xact_remote_create(gnode, sqn);
     ogs_assert(new);
 
     ogs_debug("[%d] %s Receive peer [%s]:%d",

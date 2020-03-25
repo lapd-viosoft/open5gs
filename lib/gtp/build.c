@@ -25,8 +25,6 @@ ogs_pkbuf_t *ogs_gtp_build_echo_request(
     ogs_gtp_message_t gtp_message;
     ogs_gtp_echo_request_t *req = NULL;
 
-    ogs_debug("[GTP] Echo Request");
-
     req = &gtp_message.echo_request;
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
 
@@ -45,8 +43,6 @@ ogs_pkbuf_t *ogs_gtp_build_echo_response(
 {
     ogs_gtp_message_t gtp_message;
     ogs_gtp_echo_response_t *rsp = NULL;
-
-    ogs_debug("[GTP] Echo Response");
 
     rsp = &gtp_message.echo_response;
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));

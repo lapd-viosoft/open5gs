@@ -24,6 +24,25 @@
 #include "sgw-s11-handler.h"
 #include "sgw-s5c-handler.h"
 
+static void sgw_handle_echo_request(
+        ogs_gtp_xact_t *xact, ogs_gtp_echo_request_t *req)
+{
+    ogs_assert(xact);
+    ogs_assert(req);
+
+    ogs_debug("[SGW] Receiving Echo Request");
+    /* FIXME : Before implementing recovery counter correctly,
+     *         I'll re-use the recovery value in request message */
+    ogs_gtp_send_echo_response(xact, req->recovery.u8, 0);
+}
+
+static void sgw_handle_echo_response(
+        ogs_gtp_xact_t *s11_xact, ogs_gtp_echo_response_t *rsp)
+{
+    /* Not Implemented */
+}
+
+
 void sgw_state_initial(ogs_fsm_t *s, sgw_event_t *e)
 {
     sgw_sm_debug(e);
@@ -94,7 +113,10 @@ void sgw_state_operational(ogs_fsm_t *s, sgw_event_t *e)
 
         switch(message.h.type) {
         case OGS_GTP_ECHO_REQUEST_TYPE:
-            sgw_s11_handle_echo_request(xact, &message.echo_request);
+            sgw_handle_echo_request(xact, &message.echo_request);
+            break;
+        case OGS_GTP_ECHO_RESPONSE_TYPE:
+            sgw_handle_echo_response(xact, &message.echo_response);
             break;
         case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
             if (message.h.teid == 0) {
@@ -180,6 +202,12 @@ void sgw_state_operational(ogs_fsm_t *s, sgw_event_t *e)
         }
 
         switch(message.h.type) {
+        case OGS_GTP_ECHO_REQUEST_TYPE:
+            sgw_handle_echo_request(xact, &message.echo_request);
+            break;
+        case OGS_GTP_ECHO_RESPONSE_TYPE:
+            sgw_handle_echo_response(xact, &message.echo_response);
+            break;
         case OGS_GTP_CREATE_SESSION_RESPONSE_TYPE:
             sgw_s5c_handle_create_session_response(xact, sess,
                     &message);
