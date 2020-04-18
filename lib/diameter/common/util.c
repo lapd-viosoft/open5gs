@@ -22,7 +22,6 @@
 bool ogs_diam_peer_connected(void)
 {
     struct fd_list *li;
-    int ret = 0;
     bool connected = false;
 
 	CHECK_POSIX( pthread_rwlock_rdlock(&fd_g_peers_rw) );
